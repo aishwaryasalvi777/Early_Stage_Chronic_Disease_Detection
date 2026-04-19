@@ -1,0 +1,148 @@
+PROVENANCE & COLUMN DESCRIPTIONS — Synthetic Patient Records (EHR)
+===================================================================
+100K Patients · 15 Conditions · 5 Files · Clinical-Grade Synthetic Data
+Author: Sergey Nefedov (sergionefedov)
+
+───────────────────────────────────────────────────────
+DATA SOURCES & CALIBRATION
+───────────────────────────────────────────────────────
+This dataset is fully synthetic. Parameters were calibrated to the following
+publicly available sources:
+
+Demographics:
+  - US Census Bureau 2023 American Community Survey
+    Age/sex/race/ethnicity distributions for US adult population
+
+Condition prevalence:
+  - CDC National Center for Health Statistics (NCHS) 2022
+    Diabetes: 11.6% | Hypertension: 47% | Heart Disease: 6.7%
+  - American Cancer Society Cancer Facts & Figures 2023
+    Cancer prevalence by type and age group
+  - CDC Mental Health Surveillance 2023
+    Depression: 8.7% | Anxiety disorders: 19.1%
+  - National Institute of Mental Health (NIMH) 2023
+    Bipolar disorder: 2.8% | Schizophrenia: 1.1%
+  - American Diabetes Association Standards of Care 2023
+    HbA1c distributions by diabetes status
+  - American Heart Association Heart Disease and Stroke Statistics 2023
+    Cholesterol, blood pressure reference ranges
+
+Lab values:
+  - LabCorp / Quest Diagnostics reference ranges (publicly documented)
+    HbA1c, LDL, creatinine, eGFR, TSH normal/abnormal distributions
+  - KDIGO Clinical Practice Guidelines — eGFR staging for CKD
+
+Medications:
+  - CMS Medicare Part D Drug Spending Dashboard 2022
+    Most prescribed drug classes and approximate prevalence
+  - FDA Orange Book — generic/brand name mapping
+
+Comorbidity patterns:
+  - Elixhauser Comorbidity Index (van Walraven et al. 2009)
+    Correlation structure between conditions
+  - Charlson Comorbidity Index weights
+
+───────────────────────────────────────────────────────
+GENERATION METHODOLOGY
+───────────────────────────────────────────────────────
+1. Patient demographics drawn from age/sex-stratified US population distributions
+2. Condition assignment uses age/sex/BMI-adjusted prevalence probabilities
+   (e.g. diabetes probability increases with age and BMI)
+3. Comorbidities assigned with realistic co-occurrence correlations
+   (e.g. hypertension and diabetes co-occur at ~2× the rate expected by chance)
+4. Lab values drawn from condition-specific distributions calibrated to
+   published clinical reference ranges
+5. Medications assigned based on condition-appropriate drug classes with
+   realistic polypharmacy patterns
+6. Encounter history generated with frequency proportional to condition severity
+7. All random processes use fixed seed: numpy.random.default_rng(42)
+
+───────────────────────────────────────────────────────
+FILE 1: patients.csv (100,000 rows)
+───────────────────────────────────────────────────────
+patient_id            Unique patient identifier (PAT-000001 to PAT-100000)
+age                   Patient age in years (18–95)
+sex                   Biological sex: Male / Female
+race_ethnicity        Race/ethnicity: White / Black / Hispanic / Asian /
+                      Native American / Pacific Islander / Other
+marital_status        Single / Married / Divorced / Widowed
+insurance_type        Private / Medicare / Medicaid / Uninsured / Military
+bmi                   Body Mass Index (kg/m²); range 15–55
+smoking_status        Never / Former / Current
+alcohol_use           None / Moderate / Heavy
+exercise_frequency    None / Occasional / Regular / Daily
+zip_code_region       Geographic region: Northeast / South / Midwest / West
+has_primary_care      Binary: 1 if patient has a primary care provider
+years_since_last_visit  Years since most recent healthcare encounter
+
+───────────────────────────────────────────────────────
+FILE 2: diagnoses.csv (~350,000 rows — multiple per patient)
+───────────────────────────────────────────────────────
+patient_id            Links to patients.csv
+icd10_code            ICD-10-CM diagnosis code (e.g. E11.9 = Type 2 diabetes)
+condition_name        Human-readable condition name
+condition_category    Broad category: cardiovascular / metabolic / mental_health /
+                      respiratory / musculoskeletal / cancer / neurological / other
+diagnosis_date        Date of diagnosis (YYYY-MM-DD)
+diagnosis_type        primary / secondary / chronic / acute
+is_active             Binary: 1 if condition is currently active
+severity              mild / moderate / severe (where clinically applicable)
+
+───────────────────────────────────────────────────────
+FILE 3: lab_results.csv (~800,000 rows — multiple per patient)
+───────────────────────────────────────────────────────
+patient_id            Links to patients.csv
+test_name             Lab test name (e.g. HbA1c, LDL Cholesterol, eGFR, TSH)
+test_date             Date specimen collected (YYYY-MM-DD)
+result_value          Numeric result value
+result_unit           Unit of measurement (%, mg/dL, mL/min/1.73m², mIU/L, etc.)
+reference_low         Lower bound of normal reference range
+reference_high        Upper bound of normal reference range
+is_abnormal           Binary: 1 if result outside reference range
+abnormal_direction    high / low / normal
+loinc_code            LOINC standardized laboratory test code
+
+───────────────────────────────────────────────────────
+FILE 4: medications.csv (~420,000 rows — multiple per patient)
+───────────────────────────────────────────────────────
+patient_id            Links to patients.csv
+drug_name             Generic drug name (e.g. metformin, lisinopril, atorvastatin)
+drug_class            Pharmacological class (e.g. biguanide, ACE_inhibitor, statin)
+indication            Condition being treated (links to condition_name in diagnoses.csv)
+start_date            Date medication was prescribed (YYYY-MM-DD)
+end_date              Date medication was stopped (null if still active)
+is_active             Binary: 1 if medication currently prescribed
+dose_mg               Prescribed dose in milligrams
+frequency             once_daily / twice_daily / three_times_daily / as_needed / weekly
+rxnorm_code           RxNorm standardized drug concept code
+
+───────────────────────────────────────────────────────
+FILE 5: encounters.csv (~600,000 rows — multiple per patient)
+───────────────────────────────────────────────────────
+patient_id            Links to patients.csv
+encounter_id          Unique encounter identifier
+encounter_date        Date of healthcare encounter (YYYY-MM-DD)
+encounter_type        outpatient / inpatient / emergency / telehealth /
+                      preventive / specialist
+department            Clinical department: primary_care / cardiology / endocrinology /
+                      psychiatry / oncology / neurology / orthopedics / emergency / other
+length_of_stay_days   For inpatient: number of days admitted (null for outpatient)
+primary_diagnosis     Main ICD-10 code for this encounter
+total_charges_usd     Billed charges for this encounter (USD)
+insurance_paid_usd    Amount paid by insurance (USD)
+patient_paid_usd      Out-of-pocket amount paid by patient (USD)
+readmission_30d       Binary: 1 if patient was readmitted within 30 days
+
+───────────────────────────────────────────────────────
+SUGGESTED TASKS
+───────────────────────────────────────────────────────
+1. Readmission prediction: predict readmission_30d from diagnoses + labs + demographics
+2. Disease progression: model HbA1c trajectory over time for diabetic patients
+3. Polypharmacy analysis: identify dangerous drug combinations using medications.csv
+4. Healthcare cost prediction: predict total_charges_usd from patient profile
+5. Comorbidity network: build graph of condition co-occurrence from diagnoses.csv
+6. Lab value imputation: predict missing lab values from patient demographics and conditions
+7. Treatment pathway analysis: sequence modeling of diagnoses → medications → outcomes
+
+IMPORTANT NOTE: This is synthetic data for educational purposes only.
+Do not use for clinical decision-making. Always consult qualified medical professionals.

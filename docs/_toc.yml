@@ -1,0 +1,6 @@
+format: jb-book
+root: intro
+chapters:
+  - file: Page1
+  - file: overview
+  - file: notebooks/blank_notebook

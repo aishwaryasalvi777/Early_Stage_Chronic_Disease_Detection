@@ -1,0 +1,7 @@
+/archive
+archive.zip
+src/data/raw/diagnoses.csv
+src/data/raw/lab_results.csv
+src/data/raw/medications.csv
+src/data/raw/outcomes.csv
+src/data/raw/patients.csv

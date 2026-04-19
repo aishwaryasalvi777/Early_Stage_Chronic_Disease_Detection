@@ -1,0 +1,10 @@
+title: Early Stage Chronic Disease Detection
+author: Documentation Team
+logo: ""
+
+execute:
+  execute_notebooks: off
+
+html:
+  use_issues_button: false
+  use_repository_button: false
