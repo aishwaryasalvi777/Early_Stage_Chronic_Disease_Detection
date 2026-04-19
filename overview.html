@@ -343,25 +343,15 @@ document.write(`
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="how-to-build-the-book-after-every-change-in-md-file">
 <h1>How to Build the book after every change in .md file:<a class="headerlink" href="#how-to-build-the-book-after-every-change-in-md-file" title="Permalink to this heading">#</a></h1>
-<p>Use this exact workflow every time you edit a markdown page.</p>
-<p>Open Terminal in your project root folder
-Path should be your repo folder, not inside archive.</p>
-<p>Build the book
-Run:
-/opt/homebrew/bin/jupyter-book build docs</p>
-<p>Open the updated local site
-Open:
-index.html</p>
-<p>Refresh browser after each build
-Use normal refresh, or hard refresh if changes do not appear.</p>
-<p>Publish to GitHub Pages (only if you want the online site updated)
-Run:
-/opt/homebrew/bin/ghp-import -n -p -f docs/_build/html</p>
-<p>Check live site
-Open:
-<a class="reference external" href="https://aishwaryasalvi777.github.io/Early_Stage_Chronic_Disease_Detection/">https://aishwaryasalvi777.github.io/Early_Stage_Chronic_Disease_Detection/</a></p>
-<p>Quick repeat routine:
-Edit .md file -&gt; Build -&gt; Check local HTML -&gt; Publish (optional) -&gt; Check live URL</p>
+<p>** Use this exact workflow every time you edit a markdown page. **</p>
+<ol class="arabic simple">
+<li><p>Open Terminal in your project root folder
+Path should be your repo folder, not inside archive.</p></li>
+<li><p>Build locally
+/opt/homebrew/bin/jupyter-book build docs</p></li>
+<li><p>Publish to GitHub Pages
+/opt/homebrew/bin/ghp-import -n -p -f docs/_build/html</p></li>
+</ol>
 </section>
 
     <script type="text/x-thebe-config">
